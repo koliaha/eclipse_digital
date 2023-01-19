@@ -1,7 +1,7 @@
 <template>
   <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/converter">converter</router-link>
+    <router-link to="/">Список валют</router-link> |
+    <router-link to="/converter">Конвертер</router-link>
   </nav>
   <router-view/>
 </template>
@@ -31,7 +31,7 @@ nav a {
 }
 
 nav a.router-link-exact-active {
-  color: #42b983;
+  color: #db4500;
 }
 .container{
   max-width: 800px ;

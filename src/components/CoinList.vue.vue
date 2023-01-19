@@ -6,8 +6,8 @@
 
 <script>
 import CoinPare from './CoinPare.vue'
-import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import {  onMounted, computed } from 'vue'
+import { useCurrencyStore } from '@/stores/index'
 export default {
   name: 'CoinList',
   props: {
@@ -16,29 +16,18 @@ export default {
     CoinPare
   },
   setup() {
-    const coin_list = ref([])
-    const rub = {
-            CharCode: "RUB",
-            Name: "Российский рубль",
-            Nominal: 1,
-            Value: 1,
-        }
-    onMounted(async () => {
-      coin_list.value = await axios.get('https://www.cbr-xml-daily.ru/daily_json.js').then((el) => {
-        const res = el.data?.Valute
-        const result = Object.keys(res).map((key) => res[key])
-        console.log(result);
-        result.push(rub)
-        return result
-      })
+    const currency = useCurrencyStore()
+    onMounted( () => {
+      currency.getCurrency()
     })
     const coinList = computed(() => {
-      return coin_list.value
+      return currency.coin_list
     })
     const filterList = (data) =>{
-      return coin_list.value.filter(el=> {return data?.ID != el?.ID})
+      return currency.coin_list.filter(el=> {return data?.ID != el?.ID})
     }
-    return {coinList,filterList}
+
+    return {coinList,filterList,currency}
   }
 }
 </script>

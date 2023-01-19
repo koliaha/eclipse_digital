@@ -2,16 +2,8 @@
     <div class="container converter">
         <div class="converter-wrapper">
             <div class="converter-content converter-content__left">
-                <div class="converter-coins">
-                    <div class="converter-coin" :class="i?.CharCode == currentCoin?.CharCode ? 'active_coin' : ''"
-                        v-for="(i, index) in coinList" :key="index" @click="chooseCoin(i)">{{
-                            i?.CharCode
-                        }}</div>
-                </div>
+                <ConvertItem @current="currency.coinConvertFrom =  $event" :current-data="currency.coinConvertFrom"/>
                 <div class="converter-value">
-                    <label for="">
-                         {{`1 ${currentCoin?.Name} = ${currentCoin?.Value / currentCoin?.Nominal}₽ `}}
-                    </label>
                     <input type="number" placeholder="100000" v-model="val1" @change="convert">
                 </div>
             </div>
@@ -19,14 +11,7 @@
                 <img src="@/assets/img/transfer.svg" class="onverter-reverse__img" alt="">
             </div>
             <div class="converter-content converter-content__right">
-                {{ currentConvertCoin }}
-                <div class="converter-coins">
-                    <div class="converter-coin"
-                        :class="i?.CharCode == currentConvertCoin?.CharCode ? 'active_coin' : ''"
-                        v-for="(i, index) in coinList" :key="index" @click="chooseConvertCoin(i)">{{
-                            i?.CharCode
-                        }}</div>
-                </div>
+                <ConvertItem @current="currency.coinConvertTo =  $event" :current-data="currency.coinConvertTo"/>
                 <div class="converter-value">
                     <input type="number" placeholder="100000" v-model="val2" readonly>
                 </div>
@@ -36,52 +21,40 @@
 </template>
 <script >
 import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import { useCurrencyStore } from '@/stores/index'
+import ConvertItem from '@/components/ConvertItem.vue'
 export default {
+    components: {
+        ConvertItem
+    },
     setup() {
+        const currency = useCurrencyStore()
         const val1 = ref(0);
         const val2 = ref(0);
-        const rub = {
-            CharCode: "RUB",
-            Name: "Российский рубль",
-            Nominal: 1,
-            Value: 1,
-        }
-        const coin_list = ref([])
-        const currentCoin = ref(rub)
-        const currentConvertCoin = ref(rub)
 
         onMounted(async () => {
-            coin_list.value = await axios.get('https://www.cbr-xml-daily.ru/daily_json.js').then((el) => {
-                const res = el.data?.Valute
-                const result = Object.keys(res).map((key) => res[key]);
-                result.push(rub)
-                return result
-            })
+            currency.getCurrency()
         })
         const coinList = computed(() => {
-            return coin_list.value
+            return currency.coin_list
         })
-        const chooseCoin = (data) => {
-            currentCoin.value = data
-        }
-        const chooseConvertCoin = (data) => {
-            currentConvertCoin.value = data
-        }
+        
+     
 
         const reverse = () => {
             let val3 = val1.value
             val1.value = val2.value
             val2.value = val3
 
-            let curval3 = currentCoin.value
-            currentCoin.value = currentConvertCoin.value
-            currentConvertCoin.value = curval3
+            let curval3 = currency.coinConvertFrom
+            currency.coinConvertFrom = currency.coinConvertTo
+            currency.coinConvertTo = curval3
+            convert()
         }
         const convert = () => {
-            val2.value = val1.value * currentCoin.value?.Value / currentCoin.value?.Nominal / currentConvertCoin.value?.Value
+            val2.value = (val1.value * currency.coinConvertFrom?.Value / currency.coinConvertFrom?.Nominal) / currency.coinConvertTo?.Value * currency.coinConvertTo?.Nominal
         }
-        return { val1, val2, reverse, coinList, currentCoin, chooseCoin, chooseConvertCoin, currentConvertCoin, convert }
+        return { val1, val2, reverse, coinList, convert, currency }
     }
 }
 </script>
@@ -91,11 +64,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
-    }
-
-    &-content {
-        max-width: 400px;
-        width: 100%;
+        min-height: 500px;
     }
 
     &-reverse {
@@ -103,27 +72,13 @@ export default {
         width: 100%;
         cursor: pointer;
     }
-
-    &-coins {
-        display: flex;
-        margin: 10px;
-        flex-wrap: wrap;
+    &-content {
+        max-width: 350px;
+        width: 100%;
+        background: rgb(248, 248, 248);
+        padding: 40px 20px;
+        border-radius: 20px;
     }
-
-    &-coin {
-        margin: 5px;
-        cursor: pointer;
-        transition: 0.1s opacity;
-
-        &:hover {
-            opacity: 0.7;
-        }
-
-        &.active_coin {
-            color: rgb(0, 179, 119);
-        }
-    }
-
     &-value {
         width: 100%;
 
