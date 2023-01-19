@@ -1,6 +1,6 @@
 <template>
     <div class="converter-coins">
-        <select v-model="currentCoin" class="converter-select">
+        <select v-model="currentCoin" class="converter-filter">
             <option v-for="(i, index) in coinList" :key="index" :value="i">{{
                 i?.CharCode
             }} - {{ i.Name }}</option>
@@ -52,7 +52,8 @@ export default {
         display: flex;
         flex-wrap: wrap;
     }
-    &-select {
+    &-filter {
+        max-width: 300px;
         width: 100%;
         padding: 10px 5px;
         border-radius: 10px;

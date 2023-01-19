@@ -1,5 +1,6 @@
 <template>
   <div class="coinitem-wrapper">
+    ID {{ currentCoin.ID }}
     <h3>{{ currentCoin.CharCode }}/{{ data.CharCode }}</h3>
     <div class="coinitem-currency">
       <p>{{`1 ${currentCoin.CharCode} - ${convert(currentCoin, data).toFixed(4) || 1} ${data.CharCode}` }}</p>
@@ -42,12 +43,15 @@ export default {
 <style lang="scss">
 .coinitem {
   &-wrapper {
-    max-width: 300px;
+    max-width: 100%;
     width: 100%;
     padding: 20px;
     background: white;
     border-radius: 20px;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   &-currency{
     display: flex;
