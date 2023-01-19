@@ -9,7 +9,13 @@
       </select>
       <input type="text" v-model="searchFilter" placeholder="R01010" class="converter-filter">
     </div>
-    <CoinPare v-for="(item, index) in coinList" :key="index" :data="item" :pare-list="filterList(item)" />
+    <div v-if="coinList.length > 0">
+      <CoinPare v-for="(item, index) in coinList" :key="index" :data="item" :pare-list="filterList(item)" />
+    </div>
+    <div v-else>
+      Список пуст
+    </div>
+    
   </div>
 </template>
 
@@ -33,20 +39,24 @@ export default {
       currency.getCurrency()
     })
     const coinList = computed(() => {
-      if (currentCoin.value == null) {
-        return currency.coin_list
+      if (searchFilter.value.length) {
+        return currency.coin_list.filter((elem) => {
+            return elem?.ID?.toLowerCase().includes(searchFilter.value.toLowerCase())
+        }
+        );
       }
-      return currency.coin_list.filter((el) => el?.ID == currentCoin.value?.ID)
+      if (currentCoin.value != null) {
+        return currency.coin_list.filter((el) => el?.ID == currentCoin.value?.ID)
+      }
+      return currency.coin_list
     })
     const filterList = (data) => {
       return currency.coin_list.filter(el => { return data?.ID != el?.ID })
     }
     watch(() => currentCoin.value, (val) => {
       currentCoin.value = val
-    }); 
-    watch(() => searchFilter.value, (val) => {
-      currentCoin.value = val
     });
+
     return { coinList, filterList, currency, currentCoin, searchFilter }
   }
 }
